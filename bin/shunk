@@ -3,6 +3,15 @@ import sys
 from typing import Dict, Sequence
 import unidiff
 
+
+def Usage():
+  print(f'Usage: {sys.argv[0]} [PATCH]\n'
+        '\nGiven a patch, print each hunk while ignoring duplicates. A hunk'
+        '\nis deemed unique if its changed lines are unique regardless of '
+        '\ncontext.')
+  sys.exit(0)
+
+
 class ContextFreeHunk(unidiff.Hunk):
   MEANINGFUL_LINE_FIELDS = ('line_type', 'value')
 
@@ -58,11 +67,7 @@ if __name__ == '__main__':
   if len(sys.argv) < 2:
     patch_stream = sys.stdin
   elif sys.argv[1].startswith('-h') or sys.argv[1].startswith('--h'):
-    print(f'Usage: {sys.argv[0]} [PATCH]\n'
-          '\nGiven a patch, print each hunk while ignoring duplicates. A hunk'
-          '\nis deemed unique if its changed lines are unique regardless of '
-          '\ncontext.')
-    sys.exit(0)
+    Usage()
   else:
     patch_stream = open(sys.argv[1], mode='r')
   patchset = unidiff.PatchSet(patch_stream)
