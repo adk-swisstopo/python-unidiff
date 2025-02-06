@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/ltkya/src/python-unidiff/bin/shunk", line 74, in <module>
+    patchset = unidiff.PatchSet(patch_stream)
+  File "/home/ltkya/src/python-unidiff/unidiff/patch.py", line 469, in __init__
+    self._parse(data, encoding=encoding, metadata_only=metadata_only)
+  File "/home/ltkya/src/python-unidiff/unidiff/patch.py", line 559, in _parse
+    current_file._parse_hunk(line, diff, encoding, metadata_only)
+  File "/home/ltkya/src/python-unidiff/unidiff/patch.py", line 318, in _parse_hunk
+    raise UnidiffParseError(
+unidiff.errors.UnidiffParseError: Hunk diff line expected: @@ -22,3 +22,7 @@
+

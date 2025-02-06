@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/ltkya/src/python-unidiff/bin/unidiff", line 48, in <module>
+    patch = PatchSet(diff_file, metadata_only=(not args.show_diff))
+  File "/home/ltkya/src/python-unidiff/unidiff/patch.py", line 469, in __init__
+    self._parse(data, encoding=encoding, metadata_only=metadata_only)
+  File "/home/ltkya/src/python-unidiff/unidiff/patch.py", line 559, in _parse
+    current_file._parse_hunk(line, diff, encoding, metadata_only)
+  File "/home/ltkya/src/python-unidiff/unidiff/patch.py", line 347, in _parse_hunk
+    raise UnidiffParseError('Hunk is longer than expected')
+unidiff.errors.UnidiffParseError: Hunk is longer than expected

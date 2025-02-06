@@ -1,0 +1,28 @@
+@@ found 1 time(s):
++This was missing!
++Adding it now.
++
++Only for testing purposes.
+\ No newline at end of file
+
+
+@@ found 1 time(s):
+ This is the original content.
+ 
+-This should be updated.
++This is now updated.
++
++This is a new line.
+ 
+ This will stay.
+\ No newline at end of file
+
+
+@@ found 1 time(s):
+-This content shouldn't be here.
+-
+-This file will be removed.
+\ No newline at end of file
+
+
+
