@@ -1,0 +1,69 @@
+#!/usr/bin/python3
+import sys
+from typing import Dict, Sequence
+import unidiff
+
+class ContextFreeHunk(unidiff.Hunk):
+  MEANINGFUL_LINE_FIELDS = ('line_type', 'value')
+
+  @staticmethod
+  def FromHunk(hunk: unidiff.Hunk):
+    retval = ContextFreeHunk()
+    for l in hunk:
+      if l.line_type is not unidiff.LINE_TYPE_CONTEXT:
+        retval.append(l)
+    return retval
+
+  def __str__(self):
+    return ''.join([str(l) for l in self])
+
+  def __repr__(self):
+    return self.__str__()
+
+  def __hash__(self):
+    values = []
+    for line in self:
+      for field in self.MEANINGFUL_LINE_FIELDS:
+        values.append(getattr(line, field))
+    return hash(tuple(values))
+
+  def __eq__(self, other):
+    if not isinstance(other, ContextFreeHunk):
+      return False
+    if len(self) != len(other):
+      return False
+    for i in range(0, len(self)):
+      for field in self.MEANINGFUL_LINE_FIELDS:
+        if getattr(self[i], field) != getattr(other[i], field):
+          return False
+    return True
+
+def Simplify(patchset: unidiff.PatchSet) -> Dict[ContextFreeHunk, int]:
+  """Discard duplicate hunks from a PatchSet.
+
+  Given a PatchSet, return a set of unique hunks. A hunk is deemed unique if
+  its changed lines are unique regardless of context.
+  """
+  hunks = {}
+  for patch in patchset:
+    for hunk in patch:
+      simple_hunk = ContextFreeHunk.FromHunk(hunk)
+      hunks.setdefault(simple_hunk, 0)
+      hunks[simple_hunk] += 1
+  return hunks
+
+if __name__ == '__main__':
+  if len(sys.argv) < 2:
+    patch_stream = sys.stdin
+  elif sys.argv[1].startswith('-h') or sys.argv[1].startswith('--h'):
+    print(f'Usage: {sys.argv[0]} [PATCH]\n'
+          '\nGiven a patch, print each hunk while ignoring duplicates. A hunk'
+          '\nis deemed unique if its changed lines are unique regardless of '
+          '\ncontext.')
+    sys.exit(0)
+  else:
+    patch_stream = open(sys.argv[1], mode='r')
+  patchset = unidiff.PatchSet(patch_stream)
+  hunks = Simplify(patchset)
+  for h in sorted(hunks, reverse=True, key=lambda h: hunks[h]):
+    print(f'@@ found {hunks[h]} time(s):\n{h}')
