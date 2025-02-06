@@ -13,7 +13,13 @@ def Usage():
 
 
 class ContextFreeHunk(unidiff.Hunk):
+  """A Hunk that can be meaningfully compared without its context.
 
+  Two ContextFreeHunks are deemed equal if their changed lines are the same
+  regardless of their context lines or other contextual information.
+  """
+
+  @staticmethod
   def FromHunk(hunk: unidiff.Hunk):
     retval = ContextFreeHunk()
     for l in hunk:
@@ -26,7 +32,7 @@ class ContextFreeHunk(unidiff.Hunk):
   def __repr__(self):
     return self.__str__()
 
-  def _get_meaningful_fields(self):
+  def _get_meaningful_fields(self) -> Sequence[str]:
     for line in self:
       if line.line_type == unidiff.LINE_TYPE_CONTEXT:
         continue
@@ -47,8 +53,8 @@ class ContextFreeHunk(unidiff.Hunk):
 def Simplify(patchset: unidiff.PatchSet) -> Dict[ContextFreeHunk, int]:
   """Discard duplicate hunks from a PatchSet.
 
-  Given a PatchSet, return a set of unique hunks. A hunk is deemed unique if
-  its changed lines are unique regardless of context.
+  Given a PatchSet, return a dict of unique hunks as key and the number of times
+  each hunk was found as value.
   """
   hunks = {}
   for patch in patchset:
