@@ -6,12 +6,10 @@ import unidiff
 class ContextFreeHunk(unidiff.Hunk):
   MEANINGFUL_LINE_FIELDS = ('line_type', 'value')
 
-  @staticmethod
   def FromHunk(hunk: unidiff.Hunk):
     retval = ContextFreeHunk()
     for l in hunk:
-      if l.line_type is not unidiff.LINE_TYPE_CONTEXT:
-        retval.append(l)
+      retval.append(l)
     return retval
 
   def __str__(self):
@@ -23,6 +21,8 @@ class ContextFreeHunk(unidiff.Hunk):
   def __hash__(self):
     values = []
     for line in self:
+      if line.line_type == unidiff.LINE_TYPE_CONTEXT:
+        continue
       for field in self.MEANINGFUL_LINE_FIELDS:
         values.append(getattr(line, field))
     return hash(tuple(values))
@@ -33,6 +33,8 @@ class ContextFreeHunk(unidiff.Hunk):
     if len(self) != len(other):
       return False
     for i in range(0, len(self)):
+      if self[i].line_type == unidiff.LINE_TYPE_CONTEXT:
+        continue
       for field in self.MEANINGFUL_LINE_FIELDS:
         if getattr(self[i], field) != getattr(other[i], field):
           return False
