@@ -13,7 +13,6 @@ def Usage():
 
 
 class ContextFreeHunk(unidiff.Hunk):
-  MEANINGFUL_LINE_FIELDS = ('line_type', 'value')
 
   def FromHunk(hunk: unidiff.Hunk):
     retval = ContextFreeHunk()
@@ -27,27 +26,23 @@ class ContextFreeHunk(unidiff.Hunk):
   def __repr__(self):
     return self.__str__()
 
-  def __hash__(self):
-    values = []
+  def _get_meaningful_fields(self):
     for line in self:
       if line.line_type == unidiff.LINE_TYPE_CONTEXT:
         continue
-      for field in self.MEANINGFUL_LINE_FIELDS:
-        values.append(getattr(line, field))
-    return hash(tuple(values))
+      for field in ('line_type', 'value'):
+        yield getattr(line, field)
+
+  def __hash__(self):
+    return hash(tuple(self._get_meaningful_fields()))
 
   def __eq__(self, other):
     if not isinstance(other, ContextFreeHunk):
       return False
     if len(self) != len(other):
       return False
-    for i in range(0, len(self)):
-      if self[i].line_type == unidiff.LINE_TYPE_CONTEXT:
-        continue
-      for field in self.MEANINGFUL_LINE_FIELDS:
-        if getattr(self[i], field) != getattr(other[i], field):
-          return False
-    return True
+    return (tuple(self._get_meaningful_fields()) ==
+            tuple(other._get_meaningful_fields()))
 
 def Simplify(patchset: unidiff.PatchSet) -> Dict[ContextFreeHunk, int]:
   """Discard duplicate hunks from a PatchSet.
